@@ -1,0 +1,11 @@
+Model Information:
+* title:	corporate event stage
+* source:	https://sketchfab.com/3d-models/corporate-event-stage-6bdc885ad65a47d88e795414bc76e315
+* author:	wasimnir (https://sketchfab.com/wasimnir)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "corporate event stage" (https://sketchfab.com/3d-models/corporate-event-stage-6bdc885ad65a47d88e795414bc76e315) by wasimnir (https://sketchfab.com/wasimnir) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

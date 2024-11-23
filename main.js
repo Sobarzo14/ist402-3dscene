@@ -1,5 +1,18 @@
+// Imports
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/Addons.js";
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import * as dat from 'dat.gui';
+
+// Assets
+const stageUrl = new URL("./public/models/corporate_event_stage.glb", import.meta.url);
+const peopleUrl = new URL("./public/models/populate_idle_models_2000_frames.glb", import.meta.url);
+
+// Images
+const buildings = new URL('./public/images/buildings.jpg', import.meta.url);
+const stars = new URL('./public/images/stars.jpg', import.meta.url);
+
+
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -13,22 +26,52 @@ const camera = new THREE.PerspectiveCamera(
   1000
 );
 
+const loader = new GLTFLoader();
+const textureLoader = new THREE.TextureLoader();
+const ctLoader = new THREE.CubeTextureLoader();
 const orbit = new OrbitControls(camera, renderer.domElement);
 
 const axesHelper = new THREE.AxesHelper(5);
 scene.add(axesHelper);
 
-camera.position.set(0, 2, 5);
+scene.background = ctLoader.load([
+  buildings.href,
+  buildings.href,
+  stars.href,
+  stars.href,
+  buildings.href,
+  buildings.href
+])
+
+
+camera.position.set(0, 100, 200);
 orbit.update();
 
-const geometry = new THREE.BoxGeometry(1, 1, 1);
-const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-const cube = new THREE.Mesh(geometry, material);
-scene.add(cube);
+const dl = new THREE.DirectionalLight(0xFFFFFF, 0.8);
+dl.position.y = 200;
+const dlHelper = new THREE.DirectionalLightHelper(dl, 3)
+scene.add(dlHelper)
+scene.add(dl);
+const al = new THREE.AmbientLight(0xFFFFFF, 0.8);
+al.position.set(0, 100, 200);
+
+
+scene.add(al);
+loader.load(stageUrl.href, function (gltf) {
+  const model = gltf.scene;
+  scene.add(model)
+})
+loader.load(peopleUrl.href, function (gltf) {
+  const model = gltf.scene;
+  model.scale.set(20, 20, 20)
+  model.rotation.y = 0.5 * Math.PI
+  model.position.set(25, 0, 250);
+  scene.add(model)
+})
+
 
 function animate(time) {
-  cube.rotation.x += 0.01;
-  cube.rotation.y += 0.01;
+
 
   renderer.render(scene, camera);
 }
