@@ -1,6 +1,7 @@
 // Imports
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/Addons.js";
+import { FirstPersonControls } from 'three/addons/controls/FirstPersonControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import * as dat from 'dat.gui';
 
@@ -43,9 +44,17 @@ const camera = new THREE.PerspectiveCamera(
 camera.position.set(0, 100, 200);
 
 
-// Orbit controls
+// Controls
 const orbit = new OrbitControls(camera, renderer.domElement);
+const fps = new FirstPersonControls(camera, renderer.domElement);
+fps.movementSpeed = 5;
+fps.lookSpeed = 0.8
 orbit.update();
+fps.update()
+
+// Add Ground
+let ground = new THREE.Mesh(new THREE.PlaneGeometry(1000, 1000).rotateX(-Math.PI * 0.5), new THREE.MeshBasicMaterial({ color: new THREE.Color(0x000000).multiplyScalar(1.5) }));
+scene.add(ground);
 
 // Added models
 loader.load(stageUrl.href, function (gltf) {
