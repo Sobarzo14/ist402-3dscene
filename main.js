@@ -1,17 +1,27 @@
 // Imports
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/Addons.js";
-import { FirstPersonControls } from 'three/addons/controls/FirstPersonControls.js';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import * as dat from 'dat.gui';
+import { FirstPersonControls } from "three/addons/controls/FirstPersonControls.js";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import * as dat from "dat.gui";
 
 // Assets
-const stageUrl = new URL("./public/models/corporate_event_stage.glb", import.meta.url);
-const peopleUrl = new URL("./public/models/populate_idle_models_2000_frames.glb", import.meta.url);
+const stageUrl = new URL(
+  "./public/models/corporate_event_stage.glb",
+  import.meta.url
+);
+const peopleUrl = new URL(
+  "./public/models/populate_idle_models_2000_frames.glb",
+  import.meta.url
+);
+const wareHouseUrl = new URL(
+  "./public/models/80s_warehouse.glb",
+  import.meta.url
+);
 
 // Images
-const buildings = new URL('./public/images/buildings.jpg', import.meta.url);
-const stars = new URL('./public/images/stars.jpg', import.meta.url);
+const buildings = new URL("./public/images/buildings.jpg", import.meta.url);
+const stars = new URL("./public/images/stars.jpg", import.meta.url);
 
 // Renderer
 const renderer = new THREE.WebGLRenderer();
@@ -31,8 +41,8 @@ scene.background = ctLoader.load([
   stars.href,
   stars.href,
   buildings.href,
-  buildings.href
-])
+  buildings.href,
+]);
 
 //Camera
 const camera = new THREE.PerspectiveCamera(
@@ -41,46 +51,98 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   1000
 );
-camera.position.set(0, 100, 200);
-
+camera.position.set(0, 30, 300);
 
 // Controls
 const orbit = new OrbitControls(camera, renderer.domElement);
-const fps = new FirstPersonControls(camera, renderer.domElement);
-fps.movementSpeed = 5;
-fps.lookSpeed = 0.8
 orbit.update();
-fps.update()
 
-// Add Ground
-let ground = new THREE.Mesh(new THREE.PlaneGeometry(1000, 1000).rotateX(-Math.PI * 0.5), new THREE.MeshBasicMaterial({ color: new THREE.Color(0x000000).multiplyScalar(1.5) }));
-scene.add(ground);
+function setupCameraMovement(camera, speed = 0.1) {
+  // Keep track of pressed keys
+  const keysPressed = {};
+
+  // Update the camera position based on key states
+  function moveCamera() {
+    if (keysPressed["w"]) {
+      // Move forward
+      camera.position.z -= speed;
+    }
+    if (keysPressed["s"]) {
+      // Move backward
+      camera.position.z += speed;
+    }
+    if (keysPressed["a"]) {
+      // Move left
+      camera.position.x -= speed;
+    }
+    if (keysPressed["d"]) {
+      // Move right
+      camera.position.x += speed;
+    }
+  }
+
+  // Listen to keydown and keyup events to update keysPressed
+  function onKeyDown(event) {
+    keysPressed[event.key.toLowerCase()] = true;
+  }
+
+  function onKeyUp(event) {
+    keysPressed[event.key.toLowerCase()] = false;
+  }
+
+  window.addEventListener("keydown", onKeyDown);
+  window.addEventListener("keyup", onKeyUp);
+
+  // Call moveCamera in your animation loop
+  return moveCamera;
+}
+
+const moveCamera = setupCameraMovement(camera);
 
 // Added models
-loader.load(stageUrl.href, function (gltf) {
+loader.load(wareHouseUrl.href, function (gltf) {
   const model = gltf.scene;
-  scene.add(model)
-})
+  model.scale.set(25, 25, 25);
+  model.rotation.y = 1.5 * Math.PI;
+  scene.add(model);
+});
 loader.load(peopleUrl.href, function (gltf) {
   const model = gltf.scene;
-  model.scale.set(20, 20, 20)
-  model.rotation.y = 0.5 * Math.PI
-  model.position.set(25, 0, 250);
-  scene.add(model)
-})
+  model.scale.set(19, 19, 19);
+  model.rotation.y = Math.PI * 1.5;
+  model.position.set(-20, 0, 500);
+  scene.add(model);
+});
+
+// Added Sound
+const listener = new THREE.AudioListener();
+camera.add(listener);
+
+const sound = new THREE.Audio(listener);
+
+const audioLoader = new THREE.AudioLoader();
+audioLoader.load("/audio/club_music.mp3", function (buffer) {
+  sound.setBuffer(buffer);
+  sound.setLoop(true);
+  sound.setVolume(0.5);
+  sound.play();
+});
 
 // Added lighting
-const dl = new THREE.DirectionalLight(0xFFFFFF, 0.8);
+const dl = new THREE.DirectionalLight(0xffffff, 0.8);
 dl.position.y = 200;
-const dlHelper = new THREE.DirectionalLightHelper(dl, 3)
-scene.add(dlHelper)
+const dlHelper = new THREE.DirectionalLightHelper(dl, 3);
+scene.add(dlHelper);
 scene.add(dl);
-const al = new THREE.AmbientLight(0xFFFFFF, 0.8);
+const al = new THREE.AmbientLight(0xffffff, 0.8);
 al.position.set(0, 100, 200);
 scene.add(al);
 
 function animate(time) {
+  requestAnimationFrame(animate);
 
+  // Move camera based on WASD input
+  moveCamera();
 
   renderer.render(scene, camera);
 }
